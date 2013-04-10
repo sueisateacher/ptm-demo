@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Widgetify.com - It's Awesome</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style type="text/css">
+      body { padding: 20px 0; }
+      .jumbotron { margin: 80px 0; text-align: center; }
+      .jumbotron h1, .jumbotron .lead { font-family: "Comic Sans MS", cursive, sans-serif; }
+      .jumbotron h1 { font-size: 100px; line-height: 1; margin-bottom: 33px; }
+      .jumbotron .lead { font-size: 24px; line-height: 1.25; }
+      .jumbotron .btn { font-size: 21px; padding: 14px 24px; margin-top: 20px; }
+      .faq h3 { margin-bottom: 5px; }
+    </style>
+  </head>
+  <body>
+    <!--BEGIN SCRIPTS-->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/handlebars.js"></script>
+    <script src="js/ember.js"></script>
+    <script src="js/ember-data.js"></script>
+    <!--END SCRIPTS-->
+
+    <!--BEGIN TEMPLATES-->
+    <script type="text/x-handlebars" data-template-name="application">
+      <div class="container">
+        <div class="masthead">
+          <div class="navbar">
+            <div class="navbar-inner">
+              <div class="container">
+                {{#linkTo home classNames="brand"}}
+                  Widgetify
+                {{/linkTo}}
+                <ul class="nav pull-right">
+                  <li>
+                    {{#linkTo help}}Help{{/linkTo}}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{outlet}}
+      </div>       
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="home">
+      <div class="jumbotron">
+        <h1>ZOMG SO MANY WIDGETS</h1>
+        <p class="lead">
+          Sign up today and be on your way to more widgets than you have ever dreamt of.</p>
+        <a class="btn btn-large btn-success" href="#">Get started now</a>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="help">
+      <h1 class="page-header">Help &amp; Support</h1>
+      {{outlet}}
+    </script>
+    
+    <script type="text/x-handlebars" data-template-name="help-index">
+      {{#each faq in content}}
+      <div class="row faq">
+        <div class="span12">
+          <h3>
+            {{{faq.question}}}</h3>
+          <p>
+            {{{faq.answer}}}</p>
+        </div>
+      </div>
+      {{/each}}
+    </script>
+    <!--END TEMPLATES-->
+
+    <!-- SETUP EMBER APP-->
+    <script type="text/javascript">
+      (function (){
+        var App = window.App = Ember.Application.create();
+        App.Store = DS.Store.extend({
+          revision: 12
+        });
+
+        // SETUP API CONNECTIVITY
+        DS.RESTAdapter.reopen({
+          url: "https://supportify.io",
+          namespace: "api/v1"
+        });
+        DS.RESTAdapter.configure("plurals", {
+          faq: "faqs"
+        });
+        $(document).ajaxSend(function (event,xhr, options){
+          xhr.setRequestHeader("X-Supportify-ApiKey", "a89ff6cb7aba42a08dbfb1be01944921")
+            .setRequestHeader("X-Supportify-AppKey", "a2b949c05bb04a0eb01072b35ce29773");
+        });
+
+        // SETUP ROUTES
+        App.Router.map(function (){ 
+          this.route('home', { path: '/' });
+          this.resource("help", { path: '/help'}, function () {
+            this.route('index', { path: '/' });
+          })
+        });
+
+        // MODEL DOMAIN
+        App.Faq = DS.Model.extend({
+          question: DS.attr('string'),
+          answer: DS.attr('string')
+        });
+
+        // COMPONENTS
+        App.HelpIndexRoute = Ember.Route.extend({
+          model: function () {
+            return App.Faq.find();
+          }
+        });
+        App.HelpIndexView = Ember.View.extend({
+          templateName: 'help-index'
+        });
+      })();
+    </script>
+    <!--END EMBER APP-->
+  </body>
+</html>
