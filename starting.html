@@ -59,45 +59,12 @@
     <script type="text/javascript">
       (function (){
         var App = window.App = Ember.Application.create();
-        
-        // SETUP API CONNECTIVITY
-        DS.RESTAdapter.reopen({
-          url: "https://supportify.io",
-          namespace: "api/v1"
-        });
-        $(document).ajaxSend(function (event,xhr, options){
-          xhr.setRequestHeader("X-Supportify-ApiKey", "3853d4fbceac40d69d4332a4c681896e")
-            .setRequestHeader("X-Supportify-AppKey", "0f994b3881a3427ea44d05f90cdd2014");
-        });
-        DS.RESTAdapter.configure("plurals", {
-          faq: "faqs"
-        });
 
         // SETUP ROUTES
         App.Router.map(function (){ 
           this.route('home', { path: '/' });
-          this.resource("help", { path: '/help'}, function () {
-            this.route('index', { path: '/' });
-          })
         });
-
-        // MODEL DOMAIN
-        App.Faq = DS.Model.extend({
-          question: DS.attr('string'),
-          answer: DS.attr('string')
-        });
-
-        // COMPONENTS
-        App.HelpIndexRoute = Ember.Route.extend({
-          model: function () {
-            return App.Faq.find();
-          }
-        });
-        App.HelpIndexView = Ember.View.extend({
-          templateName: 'help-index',
-          classNames: ['jumbotron']
-        });
-      })();
+       })();
     </script>
     <!--END UPGRADES-->
   </body>
